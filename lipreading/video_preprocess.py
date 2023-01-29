@@ -11,23 +11,23 @@ from skimage import transform as transf
 from tqdm import tqdm
 
 
-face_oval_avgs = np.load('./face_oval_averages.npz', allow_pickle=True)['data']
-face_oval_avgs = face_oval_avgs * 256
-std_size = (256, 256)
-landmark_indexes_for_cropping = [2, 3, 10, 11, 26, 30]
-
-
 class VideoPreprocessor(object):
-    def __init__(self):
+    def __init__(self, avg_face_pth= './face_oval_averages.npz'):
 
         self.init_crop_width = 96
         self.init_crop_height = 96
         self.actual_crop_size = (88, 88)
         self.fps = 25
-        self.bad_start_idx = 0
-        self.good_end_idx = 0
-        self.take_29_frames = False
+        self.frames_adjust = True
 
+        self.landmark_crop_indexes = [2, 3, 10, 11, 26, 30]
+        self.std_size = (256, 256)
+        self.set_up_avg_face(avg_face_pth)
+
+    def set_up_avg_face(self, avg_face_pth):
+        assert os.path.isfile(avg_face_pth), "Face avg path: {} does not exist. Specify valid path".format(avg_face_pth)
+        face_oval_avgs = np.load(avg_face_pth, allow_pickle=True)['data']
+        self.face_oval_avgs = face_oval_avgs * 256
 
     def extract_points_from_mesh(self, face_landmarks, indexes):
         points_data_regex = re.compile(r'\d\.\d+')
@@ -68,11 +68,13 @@ class VideoPreprocessor(object):
         return face_mesh_videos, mp_face_mesh
 
     def get_face_points(self, video, output_path=None):
+        assert os.path.isfile(video), "Video: {} Not found".format(video)
         vid_capture = cv2.VideoCapture(video)
         frame_idx = 0
         sequence = []
         if (vid_capture.isOpened() == False):
             print("Error opening the video file")
+            return False
         else:
             self.fps = int(vid_capture.get(5))
             if output_path:
@@ -94,17 +96,18 @@ class VideoPreprocessor(object):
                         if output_path:
                             output_video.release()
                         cv2.destroyAllWindows()
+                        return False
                     if frame.shape[0] != 256:
-                        frame = cv2.resize(frame, std_size, interpolation=cv2.INTER_LINEAR)
+                        frame = cv2.resize(frame, self.std_size, interpolation=cv2.INTER_LINEAR)
                     current_oval = frame_points_dict['oval_landmarks'] * 256
                     if frame_idx == 0:
-                        transformed_frame, trans_mat = self.warp_img(current_oval[landmark_indexes_for_cropping, :],
-                                                                    face_oval_avgs[landmark_indexes_for_cropping, :],
+                        transformed_frame, trans_mat = self.warp_img(current_oval[self.landmark_crop_indexes, :],
+                                                                    self.face_oval_avgs[self.landmark_crop_indexes, :],
                                                                     frame,
-                                                                    std_size)
+                                                                    self.std_size)
                     current_lips = frame_points_dict['lips_landmarks']
                     trans_lips = trans_mat(current_lips * 256)
-                    trans_frame = self.apply_transform(trans_mat, frame, std_size)
+                    trans_frame = self.apply_transform(trans_mat, frame, self.std_size)
                     cut_frame = self.crop_out_patch(trans_frame, trans_lips, self.init_crop_height // 2, self.init_crop_width // 2)
                     if output_path:
                         output_video.write(cut_frame)
@@ -116,12 +119,12 @@ class VideoPreprocessor(object):
         if output_path:
             output_video.release()
         cv2.destroyAllWindows()
-        if self.take_29_frames:
+        if self.frames_adjust:
             if len(sequence) > 29:
-                sequence = self.take_center_29(sequence)
+                sequence = self.adjust_frames(sequence)
         return self.convert_bgr2gray(np.array(sequence))
 
-    # Create Method for warping image and getting transform parameters
+    # Warp image and get transform parameters
     def warp_img(self, src, dst, img, std_size):
         tform = transf.estimate_transform('similarity', src, dst)  # find the transformation matrix
         warped = transf.warp(img, inverse_map=tform.inverse, output_shape=std_size)  # wrap the frame image
@@ -129,7 +132,7 @@ class VideoPreprocessor(object):
         warped = warped.astype('uint8')
         return warped, tform
 
-    # Create Method to apply a previously calculated transform
+    # Apply a previously calculated transform
     def apply_transform(self, transform, img, std_size):
         warped = transf.warp(img, inverse_map=transform.inverse, output_shape=std_size)
         warped = warped * 255  # note output from wrap is double image (value range [0,1])
@@ -147,18 +150,23 @@ class VideoPreprocessor(object):
         diff_val = int((height - width)//2)
         if diff_val < 0:
             cut_frame = np.copy(img[:, abs(diff_val): (width - abs(diff_val))])
-        if diff_val > 0:
+        elif diff_val > 0:
             cut_frame = np.copy(img[diff_val: (height-diff_val), :])
-
-        #Check to make sure frame size is roughly equal (In case of odd resolutions)
+        else:
+            return img
+        # Check to make sure frame size is roughly equal (In case of odd resolutions)
         assert abs(cut_frame.shape[0] - cut_frame.shape[1]) <= 1, "Unable to Crop to 1:1 aspect ratio"
         return cut_frame
 
-    def take_center_29(self, sequence):
-        if 40 < self.fps < 80 and len(sequence) >= 60:
+    def adjust_frames(self, sequence):
+        if 39 < self.fps <= 60:
             sequence = sequence[::2]
+        elif 60 < self.fps <= 90:
+            sequence = sequence[::3]
+        elif 90 < self.fps <= 120:
+            sequence = sequence[::4]
         half_point = int((len(sequence)-1)//2)
-        return sequence[half_point-14:half_point+15]
+        return sequence
 
     def convert_bgr2gray(self, data):
         return np.stack([cv2.cvtColor(_, cv2.COLOR_BGR2GRAY) for _ in data], axis=0)

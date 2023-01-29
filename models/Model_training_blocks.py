@@ -12,11 +12,9 @@ import torch.nn.functional as F
 import torch.optim as optim
 import wandb
 
-temp_logger = logging_setup(None, './')
 
-
-def train_loop(model, dataloader, criterion, epoch, optimizer, mixup=False, log_interval=None, mixup_alpha = 0.4,
-               logger=temp_logger):
+def train_loop(model, dataloader, criterion, epoch, optimizer, logger, mixup=False, log_interval=None, mixup_alpha = 0.4,
+               ):
 
     mixup_alpha = mixup_alpha
 
@@ -25,7 +23,6 @@ def train_loop(model, dataloader, criterion, epoch, optimizer, mixup=False, log_
     running_corrects = 0.
     running_all = 0.
 
-    end = time.time()
     for batch_idx, (input, lengths, labels) in enumerate(tqdm(dataloader)):
         if mixup:
             input, labels_a, labels_b, lam = mixup_data(input, labels, mixup_alpha)
@@ -58,14 +55,15 @@ def train_loop(model, dataloader, criterion, epoch, optimizer, mixup=False, log_
             running_corrects += torch.sum(predicted == labels.data)
             corrects = torch.sum(predicted == labels.data)
         running_all += input.size(0)
-        if log_interval is not None and batch_idx % log_interval == 0:
-            wandb.log({"train_loss": loss, "train_acc": (corrects/input.size(0))})
+        if log_interval is not None:
+            if batch_idx % log_interval == 0:
+                wandb.log({"train_loss": loss, "train_acc": (corrects/input.size(0))})
     logger.info("Running Loss: {}, Running Corrects: {}, Running All: {}".format(running_loss, running_corrects, running_all))
 
     return model
 
 
-def evaluate(model, dset_loader, criterion, profiler=None, logger=temp_logger):
+def evaluate(model, dset_loader, criterion, logger, profiler=None, ):
 
     model.eval()
 
@@ -94,7 +92,7 @@ def evaluate(model, dset_loader, criterion, profiler=None, logger=temp_logger):
 
 class FullTrainer(object):
     def __init__(self, model, dataloader, epochs, criterion=nn.CrossEntropyLoss().cuda(), save_dir='./', state_path=None,
-                 model_weights_only=False, lr=0.001, optim='adam', logger=temp_logger):
+                 model_weights_only=False, lr=0.001, optim='adam', logger=None):
         # Model/Training Params
         self.epoch = 0
         self.model = model
@@ -104,11 +102,14 @@ class FullTrainer(object):
         self.criterion = criterion
         self.scheduler = CosineScheduler(lr, epochs)
         self.allow_size_mismatch = True
-        self.logger = logger
+        if logger is None:
+            self.logger = logging_setup(None, './')
+        else:
+            self.logger = logger
 
         # Weights and Biases init values
         self.use_wandb = False
-        self.log_interval = False
+        self.log_interval = None
 
         # Checkpoint Params
         self.checkpoint_filename = 'ckpt.pth.tar'
@@ -189,8 +190,8 @@ class FullTrainer(object):
             self.logger.info('Current learning rate: {}'.format(showLR(self.optimizer)))
 
             self.model = train_loop(self.model, self.dataset['train'], self.criterion, self.epoch, self.optimizer,
-                                    mixup=mixup, log_interval=self.log_interval)
-            acc_avg_val, loss_avg_val = evaluate(self.model, self.dataset['val'], self.criterion)
+                                    self.logger, mixup=mixup, log_interval=self.log_interval)
+            acc_avg_val, loss_avg_val = evaluate(self.model, self.dataset['val'], self.criterion, self.logger)
             self.logger.info('{} Epoch:\t{:2}\tLoss val: {:.4f}\tAcc val:{:.4f}, LR: {}'
                              .format('val', self.epoch, loss_avg_val, acc_avg_val, showLR(self.optimizer)))
             if self.use_wandb:
@@ -213,7 +214,7 @@ class FullTrainer(object):
         assert os.path.isfile(best_filepath)
         checkpoint = torch.load(best_filepath)
         self.model.load_state_dict(checkpoint['model_state_dict'])
-        acc_avg_test, loss_avg_test = evaluate(self.model, self.dataset['test'], self.criterion)
+        acc_avg_test, loss_avg_test = evaluate(self.model, self.dataset['test'], self.criterion, self.logger)
         self.logger.info('Test time performance of best epoch: {} (loss: {})'.format(acc_avg_test, loss_avg_test))
 
     def save_checkpoint(self, save_dict, current_score):
@@ -247,6 +248,12 @@ class FullTrainer(object):
                 with_stack=True)
 
     def test_performance(self):
-        acc_avg_val, loss_avg_val = evaluate(self.model, self.dataset['test'], self.criterion, self.prof)
+        acc_avg_val, loss_avg_val = evaluate(self.model, self.dataset['test'], self.criterion, self.logger, self.prof)
         self.logger.info('{} Loss val: {:.4f}\tAcc val:{:.4f}'.format('test', loss_avg_val, acc_avg_val))
         return self.prof
+
+    def save_model_weights(self, save_location=self.save_dir):
+        save_dict = {'model_state_dict': self.model.state_dict()}
+        file_path = os.path.join(save_location, 'model_weights.tar')
+        torch.save(save_dict, file_path)
+        self.logger.info('Model Weights Saved in: {}'.format(file_path))

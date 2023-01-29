@@ -7,7 +7,7 @@ from Model_training_blocks import FullTrainer
 
 
 def load_args(default_config=None):
-    parser = argparse.ArgumentParser(description='Lipreading')
+    parser = argparse.ArgumentParser(description='Lipreading model training')
 
     # -- Model Config
     parser.add_argument('--model-version', type=str, default='Lipread3', choices=['Lipread2', 'Lipread3'],
@@ -29,11 +29,11 @@ def load_args(default_config=None):
     parser.add_argument('--use-mixup', default=True, help='Whether to use mixup when training')
     # -- WandB
     parser.add_argument('--use-wandb', default=False, help='Whether to use Weights and Biases when training (Will need to sign in)')
-    parser.add_argument('--custom-wandb-name', default=None, help='Project name to save wandb data. Defaults to model-version')
+    parser.add_argument('--wandb-project-name', default=None, help='Project name to save wandb data. Defaults to model-version')
     parser.add_argument('--wandb-trainlog-interval', type=int, default=100,
                         help='How often to get training acc and loss in epoch (0 means only val acc and loss)')
     # -- Other
-    parser.add_argument('--logging-dir', type=str, default='./train_logs',
+    parser.add_argument('--logging-direc', type=str, default='./train_logs',
                         help='path to the directory in which to save the log file')
     parser.add_argument('--test-mode', default=False, help='Get accuracy and loss on Test Set and TensorBoard insights')
 
@@ -69,6 +69,8 @@ def main():
         logger.error("Please Specify 'Lipread2' or 'Lipread3'. Input was: {}".format(args.model_version))
         return
 
+    model.cuda()
+
     dataset = set_up_dataloader()
     if args.test_mode:
         epochs = 0
@@ -79,11 +81,13 @@ def main():
                                 model_weights_only=args.model_weights_only, lr=args.lr, optim=args.optimizer, logger=logger)
 
     if args.use_wandb:
-        if args.custom_wandb_name is None:
+        if args.wandb_project_name is None:
             model_trainer.wandb_activation(project_name=args.model_version, log_interval=args.wandb_trainlog_interval)
         else:
-            model_trainer.wandb_activation(project_name=args.custom_wandb_name, log_interval=args.wandb_trainlog_interval)
+            model_trainer.wandb_activation(project_name=args.wandb_project_name, log_interval=args.wandb_trainlog_interval)
 
     if not args.test_mode:
         model_trainer.initialize_training(mixup=args.use_mixup)
 
+if __name__ == '__main__':
+    main()
