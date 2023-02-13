@@ -4,7 +4,7 @@ import numpy as np
 import time
 import mediapipe as mp
 import re
-from preprocesses import *
+from lipreading.preprocesses import *
 import torch
 import os
 from skimage import transform as transf

@@ -1,8 +1,8 @@
 import os
 import streamlit as st
 import subprocess as sp
-from pytorch_nn import Lipread2, Lipread3
-from video_preprocess import VideoPreprocessor
+from models.pytorch_nn import Lipread2, Lipread3
+from lipreading.video_preprocess import VideoPreprocessor
 import torch.nn.functional as F
 
 import torch

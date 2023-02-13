@@ -1,0 +1,5 @@
+Model weights loaded
+Model weights loaded
+Model weights loaded
+Model weights loaded
+Model Weights Saved in: models/pretrained_weights/Lipread3/model_weights.tar

@@ -1,10 +1,10 @@
-
+import os.path
 import time
 import shutil
 
 from tqdm import tqdm
-from mixup import mixup_data, mixup_criterion
-from utilities import *
+from lipreading.mixup import mixup_data, mixup_criterion
+from lipreading.utilities import *
 
 import torch
 import torch.nn as nn
@@ -13,8 +13,7 @@ import torch.optim as optim
 import wandb
 
 
-def train_loop(model, dataloader, criterion, epoch, optimizer, logger, mixup=False, log_interval=None, mixup_alpha = 0.4,
-               ):
+def train_loop(model, dataloader, criterion, epoch, optimizer, logger, mixup=False, log_interval=None, mixup_alpha=0.4,):
 
     mixup_alpha = mixup_alpha
 
@@ -125,6 +124,7 @@ class FullTrainer(object):
 
         else:
             self.load_checkpoint(optim, state_path, model_weights_only)
+            self.logger.info("Model weights loaded")
 
         if epochs == 0:
             self.profiler_activation()
@@ -252,8 +252,10 @@ class FullTrainer(object):
         self.logger.info('{} Loss val: {:.4f}\tAcc val:{:.4f}'.format('test', loss_avg_val, acc_avg_val))
         return self.prof
 
-    def save_model_weights(self, save_location=self.save_dir):
+    def save_model_weights(self, save_location):
         save_dict = {'model_state_dict': self.model.state_dict()}
+        if not os.path.isdir(save_location):
+            os.makedirs(save_location)
         file_path = os.path.join(save_location, 'model_weights.tar')
         torch.save(save_dict, file_path)
         self.logger.info('Model Weights Saved in: {}'.format(file_path))

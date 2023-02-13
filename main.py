@@ -1,9 +1,9 @@
 import os
 import argparse
-from pytorch_nn import Lipread2, Lipread3
-from datasetloading import dataloaders
-from utilities import get_save_folder, logging_setup
-from Model_training_blocks import FullTrainer
+from models.pytorch_nn import Lipread2, Lipread3
+from lipreading.datasetloading import dataloaders
+from lipreading.utilities import get_save_folder, logging_setup
+from lipreading.Model_training_blocks import FullTrainer
 
 
 def load_args(default_config=None):
@@ -26,7 +26,7 @@ def load_args(default_config=None):
     parser.add_argument('--optimizer', type=str, default='adamw', choices=['adam', 'sgd', 'adamw'])
     parser.add_argument('--model-weights-only', default=True, help='Whether to load full checkpoint or just weights')
     # -- Mixup
-    parser.add_argument('--use-mixup', default=True, help='Whether to use mixup when training')
+    parser.add_argument('--use-mixup', default=False, help='Whether to use mixup when training')
     # -- WandB
     parser.add_argument('--use-wandb', default=False, help='Whether to use Weights and Biases when training (Will need to sign in)')
     parser.add_argument('--wandb-project-name', default=None, help='Project name to save wandb data. Defaults to model-version')
@@ -69,6 +69,11 @@ def main():
         logger.error("Please Specify 'Lipread2' or 'Lipread3'. Input was: {}".format(args.model_version))
         return
 
+    if isinstance(args.model_weights_only, str) and args.model_weights_only.lower() == 'false':
+        weights_only = False
+    else:
+        weights_only = True
+
     model.cuda()
 
     dataset = set_up_dataloader()
@@ -78,7 +83,7 @@ def main():
         epochs = args.epochs
 
     model_trainer = FullTrainer(model, dataset, epochs, save_dir=save_loc, state_path=args.model_path,
-                                model_weights_only=args.model_weights_only, lr=args.lr, optim=args.optimizer, logger=logger)
+                                model_weights_only=weights_only, lr=args.lr, optim=args.optimizer, logger=logger)
 
     if args.use_wandb:
         if args.wandb_project_name is None:

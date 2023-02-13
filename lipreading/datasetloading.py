@@ -5,7 +5,7 @@ import numpy as np
 import sys
 import cv2
 import random
-from utilities import get_wordslist_from_txt_file, read_txt_lines
+from lipreading.utilities import get_wordslist_from_txt_file, read_txt_lines
 
 class Dataset(object):
     def __init__(self, data_partition, data_dir, label_fp, lrw_direc=None, preprocessing_func=None, data_suffix='.npz'):
@@ -273,7 +273,7 @@ def collate_fn(batch):
     return data, lengths, labels
 
 
-def dataloaders(data_dir, label_fp, batch_size, lrw_direc=None, workers=1):
+def dataloaders(data_dir, label_fp, batch_size=64, lrw_direc=None, workers=1):
     preprocessing = preprocess_creation()
 
     #create datasets for train,test,val partitions
