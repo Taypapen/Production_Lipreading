@@ -63,7 +63,7 @@ def train_loop(model, dataloader, criterion, epoch, optimizer, logger, mixup=Fal
     return model
 
 
-def evaluate(model, dset_loader, criterion, logger, profiler=None, ):
+def evaluate(model, dset_loader, criterion, logger, profiler=None):
 
     model.eval()
 
