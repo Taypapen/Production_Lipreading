@@ -1,7 +1,6 @@
 import os
 import streamlit as st
 import subprocess as sp
-from moviepy.editor import VideoFileClip
 from models.pytorch_nn import Lipread2, Lipread3
 from lipreading.video_preprocess import VideoPreprocessor
 import torch.nn.functional as F
@@ -23,17 +22,11 @@ def get_wordslist_from_txt_file(file_path):
 def convert_mp4v_to_h264(infile,outfile):
     """
     Uses ffmpeg executable/binary file present in directory, otherwise tries to run installed ffmpeg.
-    Last resort uses MoviePy, which has resolution problems.
     """
-    try:
-        if os.path.isfile("./ffmpeg"):
-            sp.call(args=f"./ffmpeg -y -i {infile} -c:v libx264 {outfile}".split(" "))
-        else:
-            sp.call(args=f"ffmpeg -y -i {infile} -c:v libx264 {outfile}".split(" "))
-    except:
-        clip = VideoFileClip(infile)
-        clip.write_videofile(outfile, codec='libx264')
-        clip.close()
+    if os.path.isfile("./ffmpeg"):
+        sp.call(args=f"./ffmpeg -y -i {infile} -c:v libx264 {outfile}".split(" "))
+    else:
+        sp.call(args=f"ffmpeg -y -i {infile} -c:v libx264 {outfile}".split(" "))
 
 def write_bytesio_to_file(filename, bytesio):
     """
