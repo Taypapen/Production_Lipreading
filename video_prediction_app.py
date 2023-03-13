@@ -4,8 +4,12 @@ import subprocess as sp
 from models.pytorch_nn import Lipread2, Lipread3
 from lipreading.video_preprocess import VideoPreprocessor
 import torch.nn.functional as F
+import logging
 
 import torch
+
+logging.basicConfig(filename='app_log.log', level=logging.INFO)
+logging.info("Logger set up")
 
 st.title("Lipreading Single Word")
 
@@ -38,6 +42,8 @@ def write_bytesio_to_file(filename, bytesio):
         # Copy the BytesIO stream to the output file
         outfile.write(bytesio.getbuffer())
 
+logging.info("Creating paths...")
+
 os.makedirs('./tmp', exist_ok=True)
 wordslist_file = './wordlist.txt'
 model_path = './Model_weights/ckpt.best.pth.tar'
@@ -46,16 +52,21 @@ converted_path = './tmp/h264video.mp4'
 cropped_video_mp4v = './tmp/cropped_mp4v.mp4'
 cropped_video = './tmp/cropped_h264.mp4'
 
+logging.info("Paths Created")
+
 
 @st.cache
 def load_model():
+
     model = Lipread3(500)
     checkpoint = torch.load(model_path, map_location=torch.device('cpu'))
     loaded_state_dict = checkpoint['model_state_dict']
     model.load_state_dict(loaded_state_dict, strict=False)
     model.eval()
+    logging.info("Model Loaded")
     # Load words_list for referencing answer from prediction
     words_list = get_wordslist_from_txt_file(wordslist_file)
+    logging.info("Words list Loaded")
     return model, words_list
 
 
@@ -65,19 +76,25 @@ def main(uploaded_video, opened_upload):
     video_load_state = st.text('Loading Video and Preprocessing...')
     # Load Video and set up as tensor for input
     video_setup = VideoPreprocessor()
+    logging.info("Cropping Video for visual...")
     cropped_array = video_setup.get_face_points(opened_upload, output_path=cropped_video_mp4v)
     video_tensor, video_length = video_setup.tensor_setup_from_array(cropped_array)
+    logging.info("Converting Videos to h264...")
     convert_mp4v_to_h264(opened_upload, converted_path)
     convert_mp4v_to_h264(cropped_video_mp4v, cropped_video)
+    logging.info("Videos converted")
     video_load_state.text('Video Ready!')
     # Input video data into model and print word prediction
     prediction = model(video_tensor, lengths=[video_length])
     return prediction
 
 if uploaded_video is not None:
+    logging.info("Loading Lipread3 model and getting Words list")
     model, words_list = load_model()
+    logging.info("Creating video file from uploaded data...")
     write_bytesio_to_file(opened_upload, uploaded_video)
     prediction = main(uploaded_video, opened_upload)
+    logging.info("Prediction obtained from model")
     col1, col2 = st.columns(2)
     col1.header("Input Video:")
     col1.video(converted_path)
