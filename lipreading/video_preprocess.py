@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 
 class VideoPreprocessor(object):
-    def __init__(self, avg_face_pth= './face_oval_averages.npz'):
+    def __init__(self, avg_face_pth= './lipreading/face_oval_averages.npz'):
 
         self.init_crop_width = 96
         self.init_crop_height = 96

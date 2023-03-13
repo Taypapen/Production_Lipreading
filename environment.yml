@@ -1,106 +1,101 @@
-name: lipreading_no_cuda
+name: new_environment
 channels:
   - defaults
 dependencies:
-  - pip==22.3.1
+
   - pip:
     - absl-py==1.4.0
-    - altair==4.2.1
+    - altair==4.2.2
     - attrs==22.2.0
     - blinker==1.5
     - blis==0.7.9
     - cachetools==5.3.0
     - catalogue==2.0.8
-    - charset-normalizer==3.0.1
+    - charset-normalizer==3.1.0
     - click==8.1.3
     - confection==0.0.4
     - contourpy==1.0.7
     - cycler==0.11.0
     - cymem==2.0.7
-    - decorator==4.4.2
+    - decorator==5.1.1
     - entrypoints==0.4
-    - ez-setup==0.9
-    - fastai==2.7.10
-    - fastcore==1.5.27
+    - fastai==2.7.11
+    - fastcore==1.5.28
     - fastdownload==0.0.7
     - fastprogress==1.0.3
-    - ffmpeg==1.4
     - ffmpy==0.3.0
-    - ffprobe==0.5
-    - flatbuffers==23.1.21
-    - fonttools==4.38.0
+    - flatbuffers==23.3.3
+    - fonttools==4.39.0
     - gitdb==4.0.10
-    - gitpython==3.1.30
+    - gitpython==3.1.31
     - idna==3.4
-    - imageio==2.25.0
-    - imageio-ffmpeg==0.4.8
+    - imageio==2.26.0
     - importlib-metadata==6.0.0
+    - importlib-resources==5.12.0
     - jinja2==3.1.2
     - joblib==1.2.0
     - jsonschema==4.17.3
     - kiwisolver==1.4.4
     - langcodes==3.3.0
-    - markdown-it-py==2.1.0
+    - lazy-loader==0.1
+    - markdown-it-py==2.2.0
     - markupsafe==2.1.2
-    - matplotlib==3.6.3
+    - matplotlib==3.7.1
     - mdurl==0.1.2
-    - mediapipe==0.9.0.1
-    - moviepy==1.0.3
+    - mediapipe==0.9.1.0
     - murmurhash==1.0.9
     - networkx==3.0
-    - numpy==1.24.1
-    - opencv-contrib-python==4.7.0.68
-    - opencv-python==4.7.0.68
+    - numpy==1.24.2
+    - opencv-contrib-python==4.7.0.72
+    - opencv-python==4.7.0.72
     - packaging==23.0
     - pandas==1.5.3
     - pathy==0.10.1
     - pillow==9.4.0
     - preshed==3.0.8
-    - proglog==0.1.10
     - protobuf==3.20.3
     - pyarrow==11.0.0
-    - pydantic==1.10.4
+    - pydantic==1.10.6
     - pydeck==0.8.0
     - pygments==2.14.0
     - pympler==1.0.1
     - pyparsing==3.0.9
     - pyrsistent==0.19.3
     - python-dateutil==2.8.2
-    - pythonvideoconverter==1.0.3
     - pytz==2022.7.1
     - pytz-deprecation-shim==0.1.0.post0
     - pywavelets==1.4.1
     - pyyaml==6.0
     - requests==2.28.2
-    - rich==13.3.0
-    - scikit-image==0.19.3
-    - scikit-learn==1.2.1
-    - scipy==1.10.0
+    - rich==13.3.2
+    - scikit-image==0.20.0
+    - scikit-learn==1.2.2
+    - scipy==1.9.1
     - semver==2.13.0
     - six==1.16.0
     - smart-open==6.3.0
     - smmap==5.0.0
-    - spacy==3.5.0
+    - spacy==3.5.1
     - spacy-legacy==3.0.12
     - spacy-loggers==1.0.4
-    - srsly==2.4.5
-    - streamlit==1.17.0
-    - thinc==8.1.7
+    - srsly==2.4.6
+    - streamlit==1.20.0
+    - thinc==8.1.9
     - threadpoolctl==3.1.0
-    - tifffile==2023.1.23.1
+    - tifffile==2023.2.28
     - toml==0.10.2
     - toolz==0.12.0
-    - torch==1.13.1
-    - torchvision==0.14.1
+    - torch==1.12.1
+    - torchvision==0.13.1
     - tornado==6.2
-    - tqdm==4.64.1
+    - tqdm==4.65.0
     - typer==0.7.0
-    - typing-extensions==4.4.0
+    - typing-extensions==4.5.0
     - tzdata==2022.7
     - tzlocal==4.2
-    - urllib3==1.26.14
+    - urllib3==1.26.15
     - validators==0.20.0
     - wasabi==1.1.1
     - watchdog==2.3.1
-    - zipp==3.11.0
-prefix: /home/taylorpap/anaconda3/envs/lipreading_no_cuda
+    - zipp==3.15.0
+prefix: /home/taylorpap/anaconda3/envs/new_environment

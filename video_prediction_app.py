@@ -46,7 +46,7 @@ logging.info("Creating paths...")
 
 os.makedirs('./tmp', exist_ok=True)
 wordslist_file = './wordlist.txt'
-model_path = './Model_weights/ckpt.best.pth.tar'
+model_path = './models/pretrained_weights/Lipread3/model_weights.tar'
 opened_upload = './tmp/uploaded_video_bytes'
 converted_path = './tmp/h264video.mp4'
 cropped_video_mp4v = './tmp/cropped_mp4v.mp4'
@@ -55,7 +55,7 @@ cropped_video = './tmp/cropped_h264.mp4'
 logging.info("Paths Created")
 
 
-@st.cache
+@st.cache_resource
 def load_model():
 
     model = Lipread3(500)
@@ -70,7 +70,7 @@ def load_model():
     return model, words_list
 
 
-@st.cache(suppress_st_warning=True)
+@st.cache_data
 def main(uploaded_video, opened_upload):
 
     video_load_state = st.text('Loading Video and Preprocessing...')
