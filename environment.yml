@@ -19,7 +19,6 @@ dependencies:
   - tk=8.6.12
   - wheel=0.37.1
   - xz=5.2.10
-  - zlib=1.2.13
   - pip:
     - absl-py==1.4.0
     - altair==4.2.1
