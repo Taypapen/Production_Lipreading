@@ -108,3 +108,5 @@ if uploaded_video is not None:
     if st.checkbox('Show Second Guess', value=False):
         st.write("Second Guess is: " + second)
         st.write("Confidence Score of: " + str(second_soft))
+
+st.write("Check Out the Source Code at https://github.com/Taypapen/Production_Lipreading/")
