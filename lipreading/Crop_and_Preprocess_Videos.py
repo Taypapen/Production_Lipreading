@@ -28,6 +28,8 @@ def preprocess_extract_save(video, output_loc, preprocessor):
     new_save_output = os.path.join(output_loc, word, which_folder, new_filename)
     if not os.path.exists(new_save_output):
         video_array = preprocessor.get_face_points(video)
+        if not video_array:
+            return False
         save2npz(new_save_output, video_array)
 
 def main():
