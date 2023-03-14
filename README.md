@@ -29,9 +29,9 @@ For best results: Mouth should be centered in frame of video and video should be
 ## Pre-processing Dataset
 
 To Preprocess LRW videos:
-'python lipreading/Crop_and_Preprocess_Videos.py --data-direc <SAVELOCATION> --lrw-direc <LRW_BASEDIRECTORY>'
+'python lipreading/Crop_and_Preprocess_Videos.py --data-direc <SAVE_LOCATION> --lrw-direc <LRW_BASEDIRECTORY>'
 
-Saved preprocessed and cropped arrays will be saved in SAVELOCATION to be used for training. Directory Structure is same as LRW Dataset.
+Saved preprocessed and cropped arrays will be saved in SAVE_LOCATION to be used for training. Directory Structure is same as LRW Dataset.
 
 ## Model Training
 
@@ -43,7 +43,7 @@ python ./main.py \
 --model-path  ./models/pretrained_weights/Lipread3/model_weights.tar \
 --data-direc <PREPROCESSED_VIDEO_DIREC> \
 --lrw-direc <LRW_DIREC>
- '''
+'''
 Default options is --epochs: 80, --lr: 0.001, --batch-size: 64, --workers: 8
 These can all be specified to different values if desired.
   
