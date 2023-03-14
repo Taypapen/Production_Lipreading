@@ -37,3 +37,6 @@ def main():
     Preprocessor = VideoPreprocessor()
     for video in videos:
         preprocess_extract_save(video, args.data_direc, Preprocessor)
+
+if __name__ == '__main__':
+    main()
