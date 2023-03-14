@@ -1,5 +1,8 @@
 # Production_Lipreading
 
+## LIPREADING APP
+Deployed Streamlit app can be accessed at: https://single-word-lipreading.streamlit.app/
+
 ## Repository Functions
 
 This Repo is composed of 3 different primary functions:
