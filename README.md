@@ -68,4 +68,4 @@ python ./main.py \
 If using partial dataset: use --wordlist-file to point to correct list.txt of words, and change --num-classes to match correct number of words
 
 Sample of some randomly chosen words from dataset can be found at https://drive.google.com/drive/folders/1ovInsxuZOsub6-Hw0rQkB_PfN2qBUNgp?usp=share_link
-
+(LRW_DIREC should be path of Directory which contains word folders inside)
