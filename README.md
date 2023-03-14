@@ -1,6 +1,6 @@
 # Production_Lipreading
 
-##LIPREADING APP
+## LIPREADING APP
 Deployed Streamlit app can be accessed at: https://single-word-lipreading.streamlit.app/
 
 ## Repository Functions
