@@ -95,7 +95,7 @@ class VideoPreprocessor(object):
                         if output_path:
                             output_video.release()
                         cv2.destroyAllWindows()
-                        return False
+                        return None
                     if frame.shape[0] != 256:
                         frame = cv2.resize(frame, self.std_size, interpolation=cv2.INTER_LINEAR)
                     current_oval = frame_points_dict['oval_landmarks'] * 256
