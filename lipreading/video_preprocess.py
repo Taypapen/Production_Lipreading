@@ -8,7 +8,6 @@ from lipreading.preprocesses import *
 import torch
 import os
 from skimage import transform as transf
-from tqdm import tqdm
 
 
 class VideoPreprocessor(object):

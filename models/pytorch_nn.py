@@ -1,9 +1,6 @@
 import os
 import torch
 from torch import nn
-import numpy as np
-from tqdm import tqdm
-import math
 import torch.nn.functional as F
 from fastai.layers import *
 from torchvision import models
@@ -148,7 +145,7 @@ class BasicBlock1D(nn.Module):
 
         res = x if self.downsample is None else self.downsample(x)
         return self.relu(out + res)
-#%%
+
 class ConvNet1D(nn.Module):
     def __init__(self, num_inputs, num_channels, kernel_size=3, dropout=0.2, relu_type='relu'):
         super(ConvNet1D, self).__init__()
@@ -166,74 +163,7 @@ class ConvNet1D(nn.Module):
         x = self.network(x)
         x = _average_batch(x, lengths)
         return x
-#%%
-class Lipreading1(nn.Module):
-    def __init__(self, num_classes, pretrained=False, relu_type = 'prelu'):
-        super(Lipreading1, self).__init__()
-        self.kernel_size = 3
-        self.dropout = 0.2
-        self.frontend_out = 64
-        self.backend_out = 128
-        self.expansion = 2
-        self.convolution_channels = [512, 256]
-        self.num_classes = num_classes
 
-        self.frontend3D = _3d_block(1, 32, kernel_size=(5,7,7), stride=(1,2,2), padding=(2,3,3))
-        self.frontend3D_2 = _3d_block(32, self.frontend_out, kernel_size=(5,7,7), stride=(1,2,2), padding=(2,3,3))
-        self.max_pool1 = nn.MaxPool3d(kernel_size=(1,3,3), stride=(1,2,2), padding=(0,1,1))
-        self.trunk = ResNet([2, 3, 2], expansion=self.expansion)
-        self.tcn = ConvNet1D(self.backend_out * self.expansion, self.convolution_channels, kernel_size=self.kernel_size, dropout=self.dropout, relu_type=relu_type)
-        self.convnet_output = nn.Linear(self.convolution_channels[-1], num_classes)
-
-        self._initialize_weights_randomly()
-
-        if pretrained:
-            pretrained_model = models.resnet50(pretrained=True)
-            self.resnet.load_state_dict(pretrained_model.state_dict(), strict=False)
-            for param in self.resnet.parameters():
-                param.requires_grad = False
-
-    def forward(self, x, lengths):
-        x = x.unsqueeze(1)
-        B, C, T, H, W = x.size()
-        x = self.frontend3D(x)
-        x = self.frontend3D_2(x)
-        x = self.max_pool1(x)
-        Tnew = x.shape[2]
-        x = threeD_to_2D_tensor(x)
-        x = self.trunk(x)
-        x = x.view(x.size(0), -1)
-        x = x.view(B, Tnew, x.size(1))
-        x = x.transpose(1, 2)
-        x = self.tcn(x, lengths)
-        return self.convnet_output(x)
-
-    def _initialize_weights_randomly(self):
-
-        use_sqrt = True
-
-        if use_sqrt:
-            def f(n):
-                return math.sqrt( 2.0/float(n) )
-        else:
-            def f(n):
-                return 2.0/float(n)
-
-        for m in self.modules():
-            if isinstance(m, nn.Conv3d) or isinstance(m, nn.Conv2d) or isinstance(m, nn.Conv1d):
-                n = np.prod( m.kernel_size ) * m.out_channels
-                m.weight.data.normal_(0, f(n))
-                if m.bias is not None:
-                    m.bias.data.zero_()
-
-            elif isinstance(m, nn.BatchNorm3d) or isinstance(m, nn.BatchNorm2d) or isinstance(m, nn.BatchNorm1d):
-                m.weight.data.fill_(1)
-                m.bias.data.zero_()
-
-            elif isinstance(m, nn.Linear):
-                n = float(m.weight.data[0].nelement())
-                m.weight.data = m.weight.data.normal_(0, f(n))
-#%%
 class ResNet2(nn.Sequential):
     def __init__(self, layers, expansion=1):
 

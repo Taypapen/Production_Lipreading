@@ -1,15 +1,18 @@
 import os
 import streamlit as st
 import subprocess as sp
-from models.pytorch_nn import Lipread2, Lipread3
+from models.pytorch_nn import Lipread3
 from lipreading.video_preprocess import VideoPreprocessor
 import torch.nn.functional as F
+import shutil
 import logging
 
 import torch
 
-logging.basicConfig(filename='app_log.log', level=logging.INFO)
-logging.info("Logger set up")
+@st.cache_data
+def logging_setup():
+    logging.basicConfig(filename='app_log.log', level=logging.INFO)
+    logging.info("Logger set up")
 
 st.title("Lipreading Single Word")
 
@@ -31,6 +34,7 @@ def convert_mp4v_to_h264(infile,outfile):
         sp.call(args=f"./ffmpeg -y -i {infile} -c:v libx264 {outfile}".split(" "))
     else:
         sp.call(args=f"ffmpeg -y -i {infile} -c:v libx264 {outfile}".split(" "))
+    os.remove(infile)
 
 def write_bytesio_to_file(filename, bytesio):
     """
@@ -41,6 +45,12 @@ def write_bytesio_to_file(filename, bytesio):
     with open(filename, "wb") as outfile:
         # Copy the BytesIO stream to the output file
         outfile.write(bytesio.getbuffer())
+
+logging_setup()
+
+#Clear saved videos from previous prediction
+if not uploaded_video and os.path.isdir('./tmp'):
+    shutil.rmtree('./tmp')
 
 logging.info("Creating paths...")
 

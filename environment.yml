@@ -93,6 +93,7 @@ dependencies:
     - tzlocal==4.2
     - urllib3==1.26.15
     - validators==0.20.0
+    - wandb==0.14.0
     - wasabi==1.1.1
     - watchdog==2.3.1
     - zipp==3.15.0
