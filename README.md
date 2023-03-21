@@ -55,7 +55,8 @@ python ./main.py \
 --lrw-direc <LRW_DIREC>
 ```
 
-Default options is --epochs 80, --lr 0.001, --batch-size 64, --workers 8
+Default options are --epochs 80, --lr 0.001, --batch-size 64, --workers 8
+
 These can all be specified to different values if desired.
   
 A checkpoint is saved after each Epoch during training. To resume training from a checkpoint:
