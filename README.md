@@ -30,13 +30,13 @@ To run app, activate created conda environment, cd to the correct directory and 
 `streamlit run video_prediction_app.py`
 
 This will open a browser window with the app. From there, upload a video of your choice to get the Model Prediction.
-For best results: Mouth should be centered in frame of video and video should be trimmed to just before/after the word is spoken. Only works on single word videos.
+For best results: Mouth should be centered in frame of video and video should be trimmed to just before/after the word is spoken (ok to have part of words spoken before/after target). Only works on single word videos.
 
 ## Pre-processing Dataset
 
 To Preprocess LRW videos:
 
-`python lipreading/Crop_and_Preprocess_Videos.py --data-direc <SAVE_LOCATION> --lrw-direc <LRW_DIRECTORY>`
+`python Crop_and_Preprocess_Videos.py --data-direc <SAVE_LOCATION> --lrw-direc <LRW_DIRECTORY>`
 
 (LRW_DIREC should be path of Directory which contains word folders inside)
 Saved preprocessed and cropped arrays will be saved in SAVE_LOCATION to be used for training. Directory Structure is same as LRW Dataset.
@@ -69,3 +69,4 @@ python ./main.py \
 If using partial dataset: use --wordlist-file to point to correct list.txt of words, and change --num-classes to match correct number of words
 
 Sample of some randomly chosen words from dataset can be found at https://drive.google.com/drive/folders/1ovInsxuZOsub6-Hw0rQkB_PfN2qBUNgp?usp=share_link
+Wordlist for sample data is: sample_wordlist.txt
