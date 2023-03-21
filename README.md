@@ -23,7 +23,7 @@ Create a new Conda Environment using *environment.yml*
 If training a model:
 Download LRW Dataset (https://www.robots.ox.ac.uk/~vgg/data/lip_reading/lrw1.html)
 
-If having issues with ffmpeg, download from ffmpeg.org/download and place executable ffmpeg and ffprobe in main directory. (Allows command line version of app to run on MacOS)
+If having issues with ffmpeg, download from ffmpeg.org/download.html and place executable ffmpeg and ffprobe in main directory. (Allows command line version of app to run on MacOS)
 
 ## Lip Reading App
 
